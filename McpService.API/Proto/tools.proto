@@ -1,0 +1,57 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "McpService.API.Grpc";
+
+package tools;
+
+service ToolService {
+  rpc RegisterTool(RegisterToolRequest) returns (ToolResponse);
+  rpc ExecuteTool(ExecuteToolRequest) returns (ExecuteToolResponse);
+  rpc GetTool(GetToolRequest) returns (ToolResponse);
+  rpc GetAllTools(GetAllToolsRequest) returns (GetAllToolsResponse);
+}
+
+message RegisterToolRequest {
+  string name = 1;
+  string description = 2;
+  string version = 3;
+  string input_schema = 4;
+  string output_schema = 5;
+  string endpoint = 6;
+  string protocol = 7;
+}
+
+message ExecuteToolRequest {
+  string tool_id = 1;
+  string input = 2;
+}
+
+message GetToolRequest {
+  string tool_id = 1;
+}
+
+message GetAllToolsRequest {}
+
+message ToolResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string version = 4;
+  string input_schema = 5;
+  string output_schema = 6;
+  string endpoint = 7;
+  string protocol = 8;
+  bool is_enabled = 9;
+  int64 created_at = 10;
+  int64 updated_at = 11;
+  int64 last_executed = 12;
+  int32 execution_count = 13;
+}
+
+message ExecuteToolResponse {
+  string result = 1;
+}
+
+message GetAllToolsResponse {
+  repeated ToolResponse tools = 1;
+}
