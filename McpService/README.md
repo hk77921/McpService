@@ -1,51 +1,58 @@
 # McpService
 
-A .NET 9 microservice for dynamic tool registration, execution, and management via REST and gRPC APIs. Supports OpenTelemetry tracing, Redis or in-memory storage, and Swagger UI for API exploration.
+A modular .NET 9 service for registering, managing, and executing tools via HTTP and gRPC APIs. The solution is organized into four main projects:
+
+- **McpService.Domain**: Core domain entities, value objects, and interfaces.
+- **McpService.Application**: Application logic, DTOs, validators, and service orchestration.
+- **McpService.Infrastructure**: Implementations for HTTP/gRPC tool execution, logging, and external integrations.
+- **McpService.API**: ASP.NET Core Web API and gRPC endpoints for tool registration, management, and execution.
 
 ## Features
-- Register, execute, and manage tools dynamically
-- RESTful API (with Swagger UI)
-- gRPC API (see `Proto/tools.proto`)
-- Redis or in-memory tool registry
-- OpenTelemetry tracing
-- Health checks
+- Register new tools with input/output schemas, endpoint, and protocol (HTTP/gRPC)
+- Execute registered tools with schema validation
+- Retrieve tool metadata and execution statistics
+- Extensible executor model for supporting new protocols
+- OpenAPI (Swagger) and gRPC service definitions
 
 ## Getting Started
 
 ### Prerequisites
-- [.NET 9 SDK](https://dotnet.microsoft.com/)
-- (Optional) Redis server for distributed tool registry
+- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 
-### Build & Rundotnet build
-cd McpService.API
-dotnet run
-### Configuration
-- Redis connection string: set `ConnectionStrings:Redis` in `appsettings.json` or environment variables to enable Redis-backed registry.
+### Build & Run
+# Restore dependencies
+dotnet restore
+# Build all projects
+dotnet build
+# Run the API (from McpService.API directory)
+dotnet run --project McpService.API/McpService.API.csproj
+### API Usage
+- REST endpoints and Swagger UI available at `/swagger` when running the API
+- gRPC endpoints defined in `McpService.API/Proto/tools.proto`
 
-### REST API
-- Swagger UI: [http://localhost:5000/swagger](http://localhost:5000/swagger) (when running in Development)
-- Example endpoints:
-  - `POST /api/tools/register` — Register a new tool
-  - `POST /api/tools/{id}/execute` — Execute a tool
-  - `GET /api/tools` — List all tools
-  - `GET /api/tools/{id}` — Get tool details
+#### Register a Tool (REST)
+`POST /api/tools`
+- Body: `{ name, description, version, inputSchema, outputSchema, endpoint, protocol }`
 
-### gRPC API
-- Proto file: [`Proto/tools.proto`](McpService.API/Proto/tools.proto)
-- Service: `ToolService`
-- Methods: `RegisterTool`, `ExecuteTool`, `GetTool`, `GetAllTools`
+#### Execute a Tool (REST)
+`POST /api/tools/{toolId}/execute`
+- Body: `{ input }`
 
-### Health Check
-- `GET /health`
+#### List Tools (REST)
+`GET /api/tools`
+
+#### gRPC
+- See `tools.proto` for service and message definitions
 
 ## Project Structure
-- `McpService.API` — ASP.NET Core Web API & gRPC host
-- `McpService.Application` — Application logic, DTOs, services
-- `McpService.Domain` — Domain models and interfaces
-- `McpService.Infrastructure` — Persistence, Redis, HTTP clients
+- `Domain/Entities`: Tool, ToolDefinition, ToolMetadata, etc.
+- `Application/Services`: ToolExecutorService, validators, DTOs
+- `Infrastructure/Http`, `Infrastructure/Grpc`: Executors for tool protocols
+- `API/Controllers`, `API/Services`: REST and gRPC endpoints
 
-## Telemetry
-- OpenTelemetry tracing is enabled by default. Configure exporters as needed in `Program.cs`.
+## Extending
+- Add new executors by implementing `IToolExecutor` in Infrastructure
+- Register new protocols in DI and update ToolExecutorService
 
 ## License
-MIT
+MIT (or specify your license)
